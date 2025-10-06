@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  livestock_db:
+    image: postgres:13
+    container_name: livestock-db-standalone
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow123
+      - POSTGRES_DB=livestock
+    ports:
+      - "5434:5432"  # เปลี่ยน port เพื่อไม่ให้ชนกับ Airflow
+    volumes:
+      - livestock_data:/var/lib/postgresql/data
+      - ./livestock_complete_dump.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d livestock"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  livestock_data:
